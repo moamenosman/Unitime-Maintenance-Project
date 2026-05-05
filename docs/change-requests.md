@@ -1,28 +1,36 @@
 ## Change Requests Description
 ##Bugs
+
 Bug 1: Fix NullPointerException in Multiple Classes
 Type: Bug Fix
-Description: SonarQube detected that multiple classes across the codebase use nullable objects without null checks, which can cause NullPointerException crashes at runtime. The system fails to handle null values gracefully in critical components including forms, actions, and server classes.
 
-Affected Locations (20+ locations):
+Description: SonarQube detected that multiple classes 
+across the codebase use nullable objects without null 
+checks, which can cause NullPointerException crashes 
+at runtime.
 
-Debug.java (L47)
-CreateBaseModelFromXml.java (L167, L348, L354)
-JGroupsUtils.java (L117)
-ApplicationProperties.java (L106, L249)
-AssignedExamsAction.java (L134)
-ExamAssignmentReportAction.java (L172)
-ExamDetailAction.java (L195, L240)
-ClassInstructorAssignmentForm.java (L172)
-SolverSettingsForm.java (L130)
-TimeHint.java (L57)
-AriaSuggestArea.java (L140, L145)
-AriaSuggestBox.java (L145, L150)
-FindOnlineSectioningLogAction.java (L574, L580, L586, L592)
-SectioningServlet.java (L1012, L2049, L2084)
-PreferenceLevel.java (L334, L336, L355, L376)
-Motivation: These bugs cause unexpected system crashes at runtime affecting reliability. SonarQube reported 1,600 reliability issues in the codebase.
+Affected Locations:
+- Debug.java (L47)
+- CreateBaseModelFromXml.java (L167, L348, L354)
+- JGroupsUtils.java (L117)
+- ApplicationProperties.java (L106, L249)
+- AssignedExamsAction.java (L134)
+- ExamAssignmentReportAction.java (L172)
+- ExamDetailAction.java (L195, L240)
+- ClassInstructorAssignmentForm.java (L172)
+- SolverSettingsForm.java (L130)
+- TimeHint.java (L57)
+- AriaSuggestArea.java (L140, L145)
+- AriaSuggestBox.java (L145, L150)
+- FindOnlineSectioningLogAction.java (L574, L580, L586)
+- SectioningServlet.java (L1012, L2049, L2084)
+- PreferenceLevel.java (L334, L336, L355, L376)
+
+Motivation: These bugs cause unexpected system crashes 
+at runtime. SonarQube reported 1,600 reliability issues.
+
 Test Cases:
+
 Test Case 1:
 Location: SolverSettingsForm.java (L130)
 Input: appearance = null
@@ -56,23 +64,30 @@ Actual: NullPointerException
 
 Bug 2: Fix XXE Vulnerability in XML Parsing
 Type: Bug Fix
-Description: SonarQube detected that XML parsing in multiple classes does not disable access to external entities. This makes the system vulnerable to XML External Entity (XXE) attacks where attackers can read internal files or perform server-side request forgery.
-Affected Locations (10+ locations):
 
-DatabaseUpdate.java (L75, L78)
-PageNameGenerator.java (L226)
-DataImportAction.java (L343, L355, L360)
-XmlApiHelper.java (L52)
-SessionRestore.java (L712)
-BaseImport.java (L66)
-DataExchangeIntegrationHelper.java (L42)
-StaffImport.java (L62)
-CurriculumClassification.java (L82)
-SolverInfo.java (L268)
-StudentSectioningQueue.java (L112)
+Description: SonarQube detected that XML parsing in 
+multiple classes does not disable access to external 
+entities, making the system vulnerable to XXE attacks.
 
-Motivation: This is a High severity security vulnerability identified by SonarQube which reported 120 security issues. XXE attacks can expose sensitive data and compromise system security.
+Affected Locations:
+- DatabaseUpdate.java (L75, L78)
+- PageNameGenerator.java (L226)
+- DataImportAction.java (L343, L355, L360)
+- XmlApiHelper.java (L52)
+- SessionRestore.java (L712)
+- BaseImport.java (L66)
+- DataExchangeIntegrationHelper.java (L42)
+- StaffImport.java (L62)
+- CurriculumClassification.java (L82)
+- SolverInfo.java (L268)
+- StudentSectioningQueue.java (L112)
+
+Motivation: High severity security vulnerability that 
+can allow attackers to read internal files. SonarQube 
+reported 120 security issues.
+
 Test Cases:
+
 Test Case 1:
 Location: DatabaseUpdate.java (L75)
 Input: XML file with external entity reference
@@ -99,40 +114,47 @@ Actual: Server-side request forgery possible
 
 Bug 3: Fix Division by Zero in Multiple Classes
 Type: Bug Fix
-Description: SonarQube detected multiple locations where division operations are performed without checking if the divisor can be zero. This can cause ArithmeticException crashes at runtime in critical scheduling and reporting components.
-Affected Locations (15+ locations):
 
-AccessStatsAction.java (L423, L470)
-XLSPrinter.java (L478, L544)
-CurriculumProjectionRulesPage.java (L905)
-SuggestionsPageContext.java (L236)
-CurriculumInterface.java (L814, L840)
-Class_.java (L1960)
-SchedulingSubpart.java (L991)
-XReservation.java (L509)
-StudentSchedulingSolutionStatisticsReport.java (L313, L703, L1244)
-CurModel.java (L126)
-JenrlInfo.java (L210)
-ProgressTracker.java (L221, L248, L279)
-StudentEmail.java (L2144, L2306)
+Description: SonarQube detected multiple locations where 
+division operations are performed without checking if 
+the divisor can be zero, causing ArithmeticException.
 
-Motivation: Division by zero causes ArithmeticException crashes at runtime in critical scheduling components. SonarQube reported these as High severity reliability issues.
+Affected Locations:
+- AccessStatsAction.java (L423, L470)
+- XLSPrinter.java (L478, L544)
+- CurriculumProjectionRulesPage.java (L905)
+- SuggestionsPageContext.java (L236)
+- CurriculumInterface.java (L814, L840)
+- Class_.java (L1960)
+- SchedulingSubpart.java (L991)
+- XReservation.java (L509)
+- StudentSchedulingSolutionStatisticsReport.java (L313, L703, L1244)
+- CurModel.java (L126)
+- JenrlInfo.java (L210)
+- ProgressTracker.java (L221, L248, L279)
+- StudentEmail.java (L2144, L2306)
+
+Motivation: Division by zero causes crashes in critical 
+scheduling components. SonarQube reported these as 
+High severity reliability issues.
+
 Test Cases:
+
 Test Case 1:
 Location: AccessStatsAction.java (L423)
-Input: cnt = 0 (no access records)
-Expected: Return 0 or show "N/A"
-Actual: ArithmeticException — division by zero crash
+Input: cnt = 0
+Expected: Return 0 or show N/A
+Actual: ArithmeticException — crash
 
 Test Case 2:
 Location: ProgressTracker.java (L221)
-Input: cnt = 0 (empty progress)
+Input: cnt = 0
 Expected: Return 0% progress
 Actual: ArithmeticException
 
 Test Case 3:
 Location: CurriculumInterface.java (L814)
-Input: total = 0 (no students)
+Input: total = 0
 Expected: Return 0 or default value
 Actual: ArithmeticException — page crash
 
@@ -151,27 +173,33 @@ Actual: ArithmeticException
 
 Bug 4: Fix Unclosed Resources in Multiple Classes
 Type: Bug Fix
-Description: SonarQube detected that multiple stream and resource objects are opened but not properly closed using try-with-resources or finally clauses. This includes FileOutputStream, InputStream, BufferedReader, Session, and other resources across the codebase.
-Affected Locations (20+ locations):
 
-WikiGet.java (L76, L78, L100, L103)
-POHelper.java (L122, L127, L190, L244)
-ApplicationProperties.java (L102, L119)
-DataImportAction.java (L346, L381)
-SessionBackup.java (L783)
-SessionRestore.java (L985, L987)
-OnlineSectioningLogger.java (L268)
-AGHCourseDetailsProvider.java (L104)
-ExportReport.java (L129)
-OnlineSectioningReport.java (L68)
-SolverServerImplementation.java (L642, L646)
-TimetableInfoUtil.java (L69)
-DegreeWorksImportTest.java (L167, L186)
-BlobRoomAvailabilityService.java (L56, L76)
-PdfWorksheet.java (L697)
+Description: SonarQube detected that multiple stream 
+and resource objects are opened but not properly closed 
+using try-with-resources causing memory leaks.
 
-Motivation: Unclosed resources cause memory leaks that degrade system performance over time. SonarQube Reliability analysis identified 20+ occurrences across the codebase.
+Affected Locations:
+- WikiGet.java (L76, L78, L100, L103)
+- POHelper.java (L122, L127, L190, L244)
+- ApplicationProperties.java (L102, L119)
+- DataImportAction.java (L346, L381)
+- SessionBackup.java (L783)
+- SessionRestore.java (L985, L987)
+- OnlineSectioningLogger.java (L268)
+- AGHCourseDetailsProvider.java (L104)
+- ExportReport.java (L129)
+- OnlineSectioningReport.java (L68)
+- SolverServerImplementation.java (L642, L646)
+- TimetableInfoUtil.java (L69)
+- BlobRoomAvailabilityService.java (L56, L76)
+- PdfWorksheet.java (L697)
+
+Motivation: Unclosed resources cause memory leaks 
+degrading system performance. SonarQube identified 
+20+ occurrences across the codebase.
+
 Test Cases:
+
 Test Case 1:
 Location: WikiGet.java (L76)
 Input: Open InputStream for file download
@@ -181,7 +209,7 @@ Actual: Stream remains open — memory leak
 Test Case 2:
 Location: SessionBackup.java (L783)
 Input: Create FileOutputStream for backup
-Expected: Stream closed after backup completes
+Expected: Stream closed after backup
 Actual: Stream not closed — file handle leak
 
 Test Case 3:
@@ -202,16 +230,79 @@ Input: Open GZIPOutputStream for compression
 Expected: Stream closed after compression
 Actual: Stream not closed — data corruption risk
 
-Bug 5: Hard-coded Secret Token (Blocker)
+
+Bug 5: Fix Extremely High Cognitive Complexity
 Type: Bug Fix
-Description: SonarQube detected hard-coded secret tokens directly embedded in the source code. This is classified as a Blocker severity issue meaning it must be fixed immediately before any release.
+
+Description: SonarQube detected methods with extremely 
+high cognitive complexity. The worst case is 
+CreateBaseModelFromXml.java (L280) with complexity 
+of 526 — far exceeding the allowed limit of 15.
+
 Affected Locations:
+- CreateBaseModelFromXml.java (L280) — complexity 526
+- CreateBaseModelFromXml.java (L197) — complexity 16
+- NaturalOrderComparator.java (L41) — complexity 16
+- NaturalOrderComparator.java (L75) — complexity 27
+- MultiComparable.java (L71) — complexity 16
+- ToolBox.java (L234) — complexity 21
+- CalendarVTimeZoneGenerator.java (L71)
+- Debug.java (L97, L100, L103)
+- LocalContext.java (L424, L461)
 
-ImportTranslations.java (L290)
-QueryEncoderBackend.java (L171)
+Motivation: Methods with extremely high cognitive 
+complexity are impossible to test and maintain safely. 
+SonarQube reported 51,000 maintainability issues.
 
-Motivation: Hard-coded secrets in source code expose sensitive authentication tokens to anyone with repository access. This is a critical security vulnerability classified as Blocker by SonarQube.
 Test Cases:
+
+Test Case 1:
+Location: CreateBaseModelFromXml.java (L280)
+Input: Complex XML model with nested elements
+Expected: Method processes model correctly
+Actual: Method untestable — complexity 526
+
+Test Case 2:
+Location: NaturalOrderComparator.java (L75)
+Input: Compare strings with mixed numbers
+Expected: Correct natural order comparison
+Actual: Complex nested logic — complexity 27
+
+Test Case 3:
+Location: ToolBox.java (L234)
+Input: Utility method with edge case input
+Expected: Clear predictable behavior
+Actual: High complexity makes edge cases untestable
+
+Test Case 4:
+Location: MultiComparable.java (L71)
+Input: Compare multiple objects
+Expected: Consistent comparison results
+Actual: Overly complex logic — complexity 16
+
+Test Case 5:
+Location: CreateBaseModelFromXml.java (L197)
+Input: XML with special attributes
+Expected: Attributes processed correctly
+Actual: Nested complexity causes maintenance issues
+
+Bug 6: Hard-coded Secret Token (Blocker)
+Type: Bug Fix
+
+Description: SonarQube detected hard-coded secret tokens 
+directly embedded in the source code. This is classified 
+as a Blocker severity issue meaning it must be fixed immediately before any release.
+
+Affected Locations:
+- ImportTranslations.java (L290)
+- QueryEncoderBackend.java (L171)
+
+Motivation: Hard-coded secrets in source code 
+expose sensitive authentication tokens to anyone with repository access.
+This is a critical security vulnerability classified as Blocker by SonarQube.
+
+Test Cases:
+
 Test Case 1:
 Location: ImportTranslations.java (L290)
 Input: Attacker reads source code
@@ -228,54 +319,6 @@ Test Case 3:
 Input: Token compromised by attacker
 Expected: System should allow token rotation without code change
 Actual: Requires code change and redeployment to rotate token
-
-Bug 6: Extremely High Cognitive Complexity
-Type: Bug Fix
-Description: SonarQube detected methods with extremely high cognitive complexity across multiple classes. The worst case is in CreateBaseModelFromXml.java (L280) with complexity of 526 — far exceeding the allowed limit of 15. Other affected classes include NaturalOrderComparator.java (complexity 27), MultiComparable.java (complexity 16), and ToolBox.java (complexity 21).
-Affected Locations (10+ locations):
-
-CreateBaseModelFromXml.java (L280) — complexity 526
-CreateBaseModelFromXml.java (L197) — complexity 16
-NaturalOrderComparator.java (L41) — complexity 16
-NaturalOrderComparator.java (L75) — complexity 27
-MultiComparable.java (L71) — complexity 16
-ToolBox.java (L234) — complexity 21
-CalendarVTimeZoneGenerator.java (L71)
-Debug.java (L97, L100, L103)
-JavaMailWrapper.java (L82)
-LocalContext.java (L424, L461)
-
-Motivation: Methods with extremely high cognitive complexity are impossible to test, understand, and maintain safely. A complexity of 526 means the method has hundreds of nested conditions and branches. SonarQube reported 51,000 maintainability issues including these critical cases.
-Test Cases:
-Test Case 1:
-Location: CreateBaseModelFromXml.java (L280)
-Input: Complex XML model with nested elements
-Expected: Method processes model correctly and is testable
-Actual: Method too complex to test — complexity 526
-
-Test Case 2:
-Location: NaturalOrderComparator.java (L75)
-Input: Compare two strings with mixed numbers
-Expected: Correct natural order comparison
-Actual: Complex nested logic makes behavior unpredictable — complexity 27
-
-Test Case 3:
-Location: ToolBox.java (L234)
-Input: Utility method called with edge case input
-Expected: Clear, predictable behavior
-Actual: High complexity makes edge cases untestable — complexity 21
-
-Test Case 4:
-Location: MultiComparable.java (L71)
-Input: Compare multiple objects simultaneously
-Expected: Consistent comparison results
-Actual: Overly complex logic risks incorrect comparisons — complexity 16
-
-Test Case 5:
-Location: CreateBaseModelFromXml.java (L197)
-Input: XML model with special attributes
-Expected: Attributes processed correctly
-Actual: Nested complexity causes maintenance issues — complexity 16
 
 ##Features
 1. Instructor Preferences
