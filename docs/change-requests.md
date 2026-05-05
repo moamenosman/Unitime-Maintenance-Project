@@ -10,6 +10,10 @@ The current university timetabling system may fail to detect scheduling conflict
 Motivation:
 This issue can lead to incorrect timetable generation, including double-booking of instructors or rooms, which negatively affects system correctness and real-world usability.
 
+This bug was identified through SonarQube static analysis 
+which detected 1,600 reliability issues in the codebase.
+
+
 2. Instructor Preferences
 
 Type: New Feature
@@ -19,6 +23,7 @@ Add a feature that allows instructors to specify their preferred days and time s
 
 Motivation:
 This improves user satisfaction and increases scheduling efficiency by aligning generated timetables with instructor availability and preferences.
+
 
 3. Export Timetable
 
@@ -30,6 +35,7 @@ Implement functionality to export the generated timetable into PDF or CSV format
 Motivation:
 This enhances usability by allowing users to share, print, or store timetables outside the system.
 
+
 4. Room Capacity Validation
 
 Type: New Feature
@@ -40,8 +46,11 @@ Add validation to ensure that the number of students assigned to a course does n
 Motivation:
 This prevents invalid scheduling scenarios and ensures that room assignments are realistic and consistent with physical constraints.
 
-5. Manual Schedule Adjustment
+SonarQube reported missing validation checks across 
+the codebase as part of its 51,000 maintainability issues.
 
+
+5. Manual Schedule Adjustment
 Type: New Feature
 
 Description:
