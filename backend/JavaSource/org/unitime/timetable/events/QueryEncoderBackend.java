@@ -167,8 +167,13 @@ public class QueryEncoderBackend implements GwtRpcImplementation<EncodeQueryRpcR
 		}
 	}
 	
-	public static void main(String[] args) {
-		System.out.println(encode("output=events.csv&type=PERSON&ext=1001&token=1xhp5vo3zfxrpbzjzhtanmcipolx03fv42ohz4xa507x5acydh&user=1001"));
+	public static void main(String[] args)
+	{
+		/// System.out.println(encode("output=events.csv&type=PERSON&ext=1001&token=1xhp5vo3zfxrpbzjzhtanmcipolx03fv42ohz4xa507x5acydh&user=1001"));
+		String token = System.getenv("UNITIME_QUERY_TOKEN");
+		if (token == null || token.isEmpty())
+			throw new IllegalArgumentException("Missing UNITIME_QUERY_TOKEN environment variable.");
+		System.out.println(encode("output=events.csv&type=PERSON&ext=1001&token=" + token + "&user=1001"));
 	}
 
 }

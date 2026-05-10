@@ -287,7 +287,15 @@ public class ImportTranslations {
 			task.setBaseDir(System.getProperty("source", "/Users/muller/git/unitime"));
 			task.setSource(System.getProperty("source", "/Users/muller/git/unitime") + File.separator + "JavaSource");
 			task.setLocales(System.getProperty("locale", "cs"));
-			task.setToken(System.getProperty("token", "b191dd443ab1800fc1e09ef23e50cdb0"));
+
+			/// task.setToken(System.getProperty("token", "b191dd443ab1800fc1e09ef23e50cdb0"));
+			String token = System.getProperty("token");
+			if (token == null || token.isEmpty())
+				token = System.getenv("UNITIME_TRANSLATIONS_TOKEN");
+			if (token == null || token.isEmpty())
+				throw new IllegalArgumentException("Missing token. Provide -Dtoken=... or set UNITIME_TRANSLATIONS_TOKEN.");
+			task.setToken(token);
+
 			task.execute();
 		} catch (Exception e) {
 			e.printStackTrace();
