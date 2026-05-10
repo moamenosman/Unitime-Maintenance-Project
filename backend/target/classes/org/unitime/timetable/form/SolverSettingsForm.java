@@ -125,8 +125,8 @@ public class SolverSettingsForm implements UniTimeForm {
 			if (a.name().equals(appearance)) return a;
 		return null;
 	}
-	public void setAppearanceType(SolverPredefinedSetting.Appearance appearance) {
-		if (appearance == null) this.appearance="";
+	public void setAppearanceType(SolverPredefinedSetting.Appearance appearance) throws NullPointerException{
+		if (appearance == null) throw new NullPointerException("appearance is null");
 		this.appearance = appearance.name();
 	}
 	public String getName() { return name;}

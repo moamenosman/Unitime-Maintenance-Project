@@ -38,6 +38,8 @@ import org.unitime.timetable.model.base.BasePreferenceLevel;
 import org.unitime.timetable.model.dao.PreferenceLevelDAO;
 import org.unitime.timetable.util.Constants;
 
+import javax.validation.constraints.Null;
+
 
 /**
  * @author Tomas Muller
@@ -327,9 +329,9 @@ public class PreferenceLevel extends BasePreferenceLevel {
         return Constants.preference2preferenceLevel(prologPref);
 	}
 	
-	public static String prolog2color(String prologPref) {
+	public static String prolog2color(String prologPref)throws NullPointerException {
 		PrefColor color = PrefColor.fromProlog(prologPref);
-		if (color == null) color = PrefColor.fromProlog(sNeutral);
+		if (color == null) throw new NullPointerException("Preferred color not found for: "+ prologPref);
 		if (CommonValues.Legacy.eq(UserProperty.HighContrastPreferences.get()))
 			return PrefColor.toHex(color.getColor());
 		else
@@ -349,9 +351,9 @@ public class PreferenceLevel extends BasePreferenceLevel {
 		return (pref == null ? null : pref.getPrefAbbv() == null ? "" : pref.getPrefAbbv());
 	}
 
-	public static Color prolog2awtColor(String prologPref) {
+	public static Color prolog2awtColor(String prologPref)throws NullPointerException {
 		PrefColor color = PrefColor.fromProlog(prologPref);
-		if (color == null) color = PrefColor.fromProlog(sNeutral);
+		if (color == null) throw new NullPointerException("Preferred color not found for:"+ prologPref);
 		return PrefColor.toAwtColor(color.getBgColor());
 	}
 	
@@ -370,9 +372,9 @@ public class PreferenceLevel extends BasePreferenceLevel {
 		return prolog2bgColor(int2prolog(intPref));
 	}
 
-	public static String prolog2bgColor(String prologPref) {
+	public static String prolog2bgColor(String prologPref)throws NullPointerException {
 		PrefColor color = PrefColor.fromProlog(prologPref);
-		if (color == null) color = PrefColor.fromProlog(sNeutral);
+		if (color == null) throw new NullPointerException("Preferred color not found for:"+ prologPref);
 		return PrefColor.toRGB(color.getBgColor());
     }
 	
