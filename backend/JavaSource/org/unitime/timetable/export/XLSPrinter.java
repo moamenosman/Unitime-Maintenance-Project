@@ -475,8 +475,11 @@ public class XLSPrinter implements Printer {
     		if(overlapMM < 0) {
     			overlapMM = 0.0D;
     		}
-    		coordinatePositionsPerMM = ConvertImageUnits.TOTAL_COLUMN_COORDINATE_POSITIONS / colWidthMM;
-    		inset = (int)(coordinatePositionsPerMM * overlapMM);
+			coordinatePositionsPerMM = safeDivide(
+					ConvertImageUnits.TOTAL_COLUMN_COORDINATE_POSITIONS,
+					colWidthMM
+			);
+			inset = (int)(coordinatePositionsPerMM * overlapMM);
     		anchorDetail = new ClientAnchorDetail(startingColumn, toColumn, inset);
     	}
     	return(anchorDetail);
@@ -541,8 +544,11 @@ public class XLSPrinter implements Printer {
             if(overlapMM < 0) {
                 overlapMM = 0.0D;
             }
-            rowCoordinatesPerMM = ConvertImageUnits.TOTAL_ROW_COORDINATE_POSITIONS / rowHeightMM;
-            inset = (int)(overlapMM * rowCoordinatesPerMM);
+			rowCoordinatesPerMM = safeDivide(
+					ConvertImageUnits.TOTAL_ROW_COORDINATE_POSITIONS,
+					rowHeightMM
+			);
+			inset = (int)(overlapMM * rowCoordinatesPerMM);
             clientAnchorDetail = new ClientAnchorDetail(startingRow, toRow, inset);
         }
         
@@ -691,5 +697,8 @@ public class XLSPrinter implements Printer {
 			}
 		}
 		return a;
+	}
+	private double safeDivide(double numerator, double denominator) {
+		return (denominator <= 0) ? 0.0 : numerator / denominator;
 	}
 }

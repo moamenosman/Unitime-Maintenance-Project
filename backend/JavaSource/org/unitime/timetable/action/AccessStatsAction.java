@@ -420,7 +420,14 @@ public class AccessStatsAction extends UniTimeAction<BlankForm> {
 		List<DataLine> lines = new ArrayList<>();
 		for (AccessStatistics stat: data) {
 			if (cnt == mod || (cnt > 0 && first + increment < stat.getTimeStamp().getTime())) {
-				lines.add(new DataLine(dateFormat.format(new Date(first)), opened / cnt, access / cnt, active / cnt, waiting / cnt, gotIn / cnt, left / cnt, gaveUp / cnt));
+				lines.add(new DataLine(dateFormat.format(new Date(first)),
+						safeDivide(opened, cnt),
+						safeDivide(access, cnt),
+						safeDivide(active, cnt),
+						safeDivide(waiting, cnt),
+						safeDivide(gotIn, cnt),
+						safeDivide(left, cnt),
+						safeDivide(gaveUp, cnt)));
 				cnt = 0; opened = 0; access = 0; active = 0; waiting = 0; gotIn = 0; left = 0; gaveUp = 0;
 			}
 			if (cnt == 0) first = stat.getTimeStamp().getTime();
@@ -467,7 +474,11 @@ public class AccessStatsAction extends UniTimeAction<BlankForm> {
 		List<DataLine> lines = new ArrayList<>();
 		for (AccessStatistics stat: data) {
 			if (cnt == mod || (cnt > 0 && first + increment < stat.getTimeStamp().getTime())) {
-				lines.add(new DataLine(dateFormat.format(new Date(first)), active1 / cnt, active2 / cnt, active5 / cnt, active10 / cnt, active15 / cnt));
+				lines.add(new DataLine(dateFormat.format(new Date(first)), safeDivide(active1, cnt),
+						safeDivide(active2, cnt),
+						safeDivide(active5, cnt),
+						safeDivide(active10, cnt),
+						safeDivide(active15, cnt)));
 				cnt = 0; active1 = 0; active2 = 0; active5 = 0; active10 = 0; active15 = 0;
 			}
 			if (cnt == 0) first = stat.getTimeStamp().getTime();
@@ -508,10 +519,10 @@ public class AccessStatsAction extends UniTimeAction<BlankForm> {
 		for (AccessStatistics stat: data) {
 			if (cnt == mod || (cnt > 0 && first + increment < stat.getTimeStamp().getTime())) {
 				lines.add(new DataLine(dateFormat.format(new Date(last)),
-						(access > 0 ? avgAcces / access : 0.0) / 60.0,
-						(wait > 0 ? avgWait / wait: 0.0) / 60.0,
-						(left > 0 ? avgAccesLeft / left : 0.0) / 60.0,
-						(gotIn > 0 ? avgWaitGotIn / gotIn : 0.0) / 60.0));
+						safeDivide(avgAcces, access) / 60.0,
+						safeDivide(avgWait, wait) / 60.0,
+						safeDivide(avgAccesLeft, left) / 60.0,
+						safeDivide(avgWaitGotIn, gotIn) / 60.0));
 				cnt = 0;
 				avgWait = 0; wait = 0;
 				avgAcces = 0; access = 0;
@@ -575,5 +586,9 @@ public class AccessStatsAction extends UniTimeAction<BlankForm> {
 		for (int slot = 0; slot <= 288; slot += 3)
 			ret.add(new IdValue((long)slot, Constants.slot2str(slot)));
 		return ret;
+	}
+
+	private static double safeDivide(double a, double b) {
+		return (b == 0) ? 0.0 : a / b;
 	}
 }

@@ -19,11 +19,9 @@
 */
 package org.unitime.commons;
 
+import java.io.File;
 import java.net.URL;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.Vector;
+import java.util.*;
 
 /** 
  * This class provides several static functions from different areas.
@@ -148,7 +146,7 @@ public class ToolBox {
 	 * @param e an enumeration
 	 * @return sorted enumeration
 	 */
-	public static Enumeration sortEnumeration(java.util.Enumeration e) {
+	public static Enumeration sortEnumeration(Enumeration e) {
 
 		return sortEnumeration(e, null);
 	}
@@ -159,8 +157,8 @@ public class ToolBox {
 	 * @return sorted enumeration
 	 */
 	public static Enumeration sortEnumeration(
-		java.util.Enumeration e,
-		java.util.Comparator c) {
+		Enumeration e,
+		Comparator c) {
 
 		Vector v = new Vector();
 
@@ -278,15 +276,15 @@ public class ToolBox {
 	/**
 	 * This function constructs the absolute path to the target folder
 	 * by traversing up from the App URL till the target folder
-	 * @param AppURL URL of the app
+	 * @param appURL URL of the app
 	 * @param targetFolder The folder for which path is to be obtained
 	 * @return Absolute file path 
 	 */
 	public synchronized static String getBasePath(URL appURL, String targetFolder) {
 
 		//Get file and parent		
-		java.io.File file = new java.io.File(appURL.getFile());		
-		java.io.File parent = file.getParentFile();		
+		File file = new File(appURL.getFile());		
+		File parent = file.getParentFile();		
 		
 		// Iterate up the folder structure till WEB-INF is encountered
 		while ( parent!=null && ! parent.getName().equals( targetFolder ) )  			

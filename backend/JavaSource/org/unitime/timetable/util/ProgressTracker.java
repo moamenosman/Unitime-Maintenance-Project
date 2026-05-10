@@ -121,7 +121,9 @@ public class ProgressTracker {
 	public String getProgressStringIfNeeded(){
 		String progressString = null;
 		count++;
-		int printPct = count * 100 / this.total;
+		//int printPct = count * 100 / this.total;
+		//fix bug
+		int printPct = (this.total == 0) ? 0 : (count * 100 / this.total);
 		Date timeNow = new Date();
 		if ((printPct % percentInterval == 0 && this.lastPrintedPercent < printPct) || count == this.total)
 		{
@@ -218,7 +220,7 @@ public class ProgressTracker {
 				if (prevIncreased){
 					sb.append(pct)
 					  .append("% elapsed time increased.  Average change = ")
-					  .append(elapsedTimeString(sumOfElapsedDifferences / cnt))
+					  .append(elapsedTimeString(cnt > 0 ? sumOfElapsedDifferences / cnt : 0))
 					  .append(".\n")
 					  .append("\t")
 					  .append(pct)
@@ -245,7 +247,7 @@ public class ProgressTracker {
 				if (prevIncreased){
 					sb.append(pct)
 					  .append("% elapsed time increased.  Average change = ")
-					  .append(elapsedTimeString(sumOfElapsedDifferences / cnt))
+					  .append((cnt > 0 ? sumOfElapsedDifferences / cnt : 0))
 					  .append(".\n")
 					  .append("\t")
 					  .append(pct)
@@ -276,7 +278,7 @@ public class ProgressTracker {
 		if (prevIncreased){
 			sb.append(100)
 			  .append("% elapsed time increased.  Average change = ")
-			  .append(elapsedTimeString(sumOfElapsedDifferences / cnt))
+			  .append(elapsedTimeString(cnt > 0 ? sumOfElapsedDifferences / cnt : 0))
 			  .append(".\n");
 			
 		} else if (prevDecreased){
