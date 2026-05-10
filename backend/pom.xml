@@ -19,8 +19,8 @@
  *
  -->
 <project
-	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+		xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
 
@@ -174,7 +174,7 @@
 			<artifactId>asm</artifactId>
 			<version>${asm.version}</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>com.google.protobuf</groupId>
 			<artifactId>protobuf-java</artifactId>
@@ -215,10 +215,10 @@
 			<version>${mail.version}</version>
 		</dependency>
 		<dependency>
-            <groupId>org.eclipse.angus</groupId>
-            <artifactId>jakarta.mail</artifactId>
-            <version>${angus-mail.version}</version>
-        </dependency>
+			<groupId>org.eclipse.angus</groupId>
+			<artifactId>jakarta.mail</artifactId>
+			<version>${angus-mail.version}</version>
+		</dependency>
 		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
@@ -240,7 +240,7 @@
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
 			<version>${gson.version}</version>
-  		</dependency>
+		</dependency>
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-core</artifactId>
@@ -502,21 +502,43 @@
 			<artifactId>jboss-logging</artifactId>
 			<version>${jboss-logging.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-api</artifactId>
+			<version>5.10.2</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-engine</artifactId>
+			<version>5.10.2</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter</artifactId>
+			<version>5.10.0</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.ant</groupId>
+			<artifactId>ant</artifactId>
+			<version>1.10.14</version>
+		</dependency>
 	</dependencies>
 	<build>
-		<sourceDirectory>${project.build.directory}/src</sourceDirectory>
+		<sourceDirectory>JavaSource</sourceDirectory>
 		<resources>
 			<resource>
 				<directory>JavaSource</directory>
 				<filtering>true</filtering>
-				<targetPath>${project.build.directory}/src</targetPath>
 				<includes>
 					<include>**/Constants.java</include>
 				</includes>
 			</resource>
 			<resource>
 				<directory>JavaSource</directory>
-				<targetPath>${project.build.directory}/src</targetPath>
 				<includes>
 					<include>**/*.java</include>
 				</includes>
@@ -554,12 +576,8 @@
 							<mainClass>org.unitime.timetable.solver.jgroups.SolverServerImplementation</mainClass>
 						</manifest>
 						<manifestEntries>
-							<Build-Number>${build.number}</Build-Number>
-							<Build-Date>${build.date}</Build-Date>
-							<Revision-Number>${revision.number}</Revision-Number>
 							<Implementation-Title>${project.name}</Implementation-Title>
-							<Implementation-Version>${project.version}.${build.number}</Implementation-Version>
-							<Implementation-Vendor-Id>${project.groupId}</Implementation-Vendor-Id>
+							<Implementation-Version>${project.version}</Implementation-Version>							<Implementation-Vendor-Id>${project.groupId}</Implementation-Vendor-Id>
 							<Implementation-Vendor>${project.organization.name}</Implementation-Vendor>
 						</manifestEntries>
 					</archive>

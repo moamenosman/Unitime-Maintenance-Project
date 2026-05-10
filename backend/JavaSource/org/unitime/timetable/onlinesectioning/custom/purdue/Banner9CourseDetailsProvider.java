@@ -123,7 +123,7 @@ public class Banner9CourseDetailsProvider implements CourseDetailsProvider {
 			StringBuffer buffer = new StringBuffer();
 			String line;
 			while ((line = in.readLine()) != null) {
-				if (!buffer.isEmpty()) buffer.append("\n");
+				if (buffer.length() > 0) buffer.append("\n");
 				buffer.append(line);
 			}
 			in.close();

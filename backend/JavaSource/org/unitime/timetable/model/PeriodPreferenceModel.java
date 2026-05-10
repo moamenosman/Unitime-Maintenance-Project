@@ -327,7 +327,7 @@ public class PeriodPreferenceModel implements RequiredTimeTableModel {
                 sb.append(getStartTime(a)+" - "+getEndTime(b));
             }
         }
-        return (sb.isEmpty() ? MSG.altNoPreferences() : sb.toString());
+        return (sb.length() == 0? MSG.altNoPreferences() : sb.toString());
     }
     
     @Override
