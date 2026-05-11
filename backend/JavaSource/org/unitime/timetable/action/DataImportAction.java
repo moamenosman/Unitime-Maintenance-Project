@@ -74,7 +74,7 @@ import org.unitime.timetable.util.queue.QueueItem;
 
 
 /** 
- * @author Tomas Muller
+ * @author Tomas Muller this is DataImportAction
  */
 @Action(value="dataImport", results = {
 		@Result(name="display", type = "tiles", location="dataImport.tiles"),

@@ -82,7 +82,7 @@ import com.google.protobuf.ByteString;
 import com.google.protobuf.CodedOutputStream;
 
 /**
- * @author Tomas Muller
+ * @author Tomas Muller this is SessionBackup
  */
 public class SessionBackup implements SessionBackupInterface {
     private static Log sLog = LogFactory.getLog(SessionBackup.class);
@@ -761,81 +761,66 @@ public class SessionBackup implements SessionBackupInterface {
 		
 		private void clearCache() { iRelationCache.clear(); }
 	}
-	
+
 	public static void main(String[] args) {
 		try {
-            HibernateUtil.configureHibernate(ApplicationProperties.getProperties());
+			HibernateUtil.configureHibernate(ApplicationProperties.getProperties());
 
-			Session session = Session.getSessionUsingInitiativeYearTerm(
-                    ApplicationProperties.getProperty("initiative", "PWL"),
-                    ApplicationProperties.getProperty("year","2012"),
-                    ApplicationProperties.getProperty("term","Spring")
-                    );
-            
-            if (session==null) {
-                sLog.error("Academic session not found, use properties initiative, year, and term to set academic session.");
-                System.exit(0);
-            } else {
-                sLog.info("Session: "+session);
-            }
-            
-            
-            FileOutputStream out = new FileOutputStream(args.length == 0
-            		? session.getAcademicTerm() + session.getAcademicYear() + session.getAcademicInitiative() + ".dat"
-            		: args[0]);
-            
-            final Progress progress = Progress.getInstance();
-            sLog.info("Using " + ApplicationProperty.SessionBackupInterface.value());
-            SessionBackup backup = (SessionBackup)Class.forName(ApplicationProperty.SessionBackupInterface.value()).getDeclaredConstructor().newInstance();
+			org.unitime.timetable.model.Session session = org.unitime.timetable.model.Session.getSessionUsingInitiativeYearTerm(
+					ApplicationProperties.getProperty("initiative", "PWL"),
+					ApplicationProperties.getProperty("year", "2012"),
+					ApplicationProperties.getProperty("term", "Spring")
+			);
 
-            PrintWriter debug = null;
-            if (args.length >= 2) {
-            	debug = new PrintWriter(args[1]);
-            	backup.debug(debug);
-            }
-            
-            progress.addProgressListener(new ProgressWriter(System.out));
-            
-            backup.backup(out, new BackupProgress() {
-				@Override
-				public void setStatus(String status) {
-					progress.setStatus(status);
-				}
-				
-				@Override
-				public void setPhase(String phase, double max) {
-					progress.setPhase(phase, Math.round(max));
-				}
-				
-				@Override
-				public void incProgress() {
-					progress.incProgress();
-				}
-				
-				@Override
-				public void info(String message) {
-					progress.info(message);
-				}
-				
-				@Override
-				public void warn(String message) {
-					progress.warn(message);
+			if (session == null) {
+				sLog.error("Academic session not found, use properties initiative, year, and term to set academic session.");
+				System.exit(0);
+			} else {
+				sLog.info("Session: " + session);
+			}
+
+			// Determine the file name for the output stream
+			String fileName = (args.length == 0)
+					? session.getAcademicTerm() + session.getAcademicYear() + session.getAcademicInitiative() + ".dat"
+					: args[0];
+
+			final Progress progress = Progress.getInstance();
+			sLog.info("Using " + ApplicationProperty.SessionBackupInterface.value());
+			SessionBackup backup = (SessionBackup) Class.forName(ApplicationProperty.SessionBackupInterface.value()).getDeclaredConstructor().newInstance();
+
+			// Try-with-resources ensures 'out' and 'debug' are closed even if backup fails
+			try (FileOutputStream out = new FileOutputStream(fileName);
+				 PrintWriter debug = (args.length >= 2) ? new PrintWriter(args[1]) : null) {
+
+				if (debug != null) {
+					backup.debug(debug);
 				}
 
-				@Override
-				public void error(String message) {
-					progress.error(message);
-				}
-			}, session.getUniqueId());
-            
-            out.close();
-            if (debug != null) debug.close();
-            
+				progress.addProgressListener(new ProgressWriter(System.out));
+
+				backup.backup(out, new BackupProgress() {
+					@Override
+					public void setStatus(String status) { progress.setStatus(status); }
+					@Override
+					public void setPhase(String phase, double max) { progress.setPhase(phase, Math.round(max)); }
+					@Override
+					public void incProgress() { progress.incProgress(); }
+					@Override
+					public void info(String message) { progress.info(message); }
+					@Override
+					public void warn(String message) { progress.warn(message); }
+					@Override
+					public void error(String message) { progress.error(message); }
+				}, session.getUniqueId());
+
+				out.flush();
+				if (debug != null) debug.flush();
+			} // Resources are automatically closed here
+
 		} catch (Exception e) {
 			sLog.fatal("Backup failed: " + e.getMessage(), e);
 		}
 	}
-	
 	public static class CompositeId implements Serializable {
 		private static final long serialVersionUID = 1L;
 		private Serializable[] iId;

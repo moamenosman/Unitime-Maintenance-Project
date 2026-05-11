@@ -15,8 +15,8 @@
  *
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
-*/
+ *
+ */
 package org.unitime.timetable.util;
 
 import java.io.IOException;
@@ -47,50 +47,57 @@ public class BlobRoomAvailabilityService extends RoomAvailabilityService {
 
     protected void sendRequest(Document request) throws IOException {
         try {
-            StringWriter writer = new StringWriter();
-            (new XMLWriter(writer,OutputFormat.createPrettyPrint())).write(request);
-            writer.flush(); writer.close();
-            SessionImplementor session = (SessionImplementor)HibernateUtil.getSession();
+            String requestXml;
+            try (StringWriter writer = new StringWriter()) {
+                new XMLWriter(writer, OutputFormat.createPrettyPrint()).write(request);
+                writer.flush();
+                requestXml = writer.getBuffer().toString();
+            }
+
+            SessionImplementor session = (SessionImplementor) HibernateUtil.getSession();
             Connection connection = session.getJdbcConnectionAccess().obtainConnection();
             try {
-                CallableStatement call = connection.prepareCall(iRequestSql);
-                call.setString(1, writer.getBuffer().toString());
-                call.execute();
-                call.close();
+                // FIX: Try-with-resources for CallableStatement
+                try (CallableStatement call = connection.prepareCall(iRequestSql)) {
+                    call.setString(1, requestXml);
+                    call.execute();
+                }
             } finally {
-            	session.getJdbcConnectionAccess().releaseConnection(connection);
+                session.getJdbcConnectionAccess().releaseConnection(connection);
             }
         } catch (Exception e) {
-            sLog.error("Unable to send request: "+e.getMessage(),e);
+            sLog.error("Unable to send request: " + e.getMessage(), e);
         } finally {
-        	HibernateUtil.closeCurrentThreadSessions();
+            HibernateUtil.closeCurrentThreadSessions();
         }
     }
-    
+
     protected Document receiveResponse() throws IOException, DocumentException {
         try {
-            SessionImplementor session = (SessionImplementor)HibernateUtil.getSession();
+            SessionImplementor session = (SessionImplementor) HibernateUtil.getSession();
             Connection connection = session.getJdbcConnectionAccess().obtainConnection();
             String response = null;
             try {
-                CallableStatement call = connection.prepareCall(iResponseSql);
-                call.registerOutParameter(1, java.sql.Types.CLOB);
-                call.execute();
-                response = call.getString(1);
-                call.close();
+                // FIX: Try-with-resources for CallableStatement
+                try (CallableStatement call = connection.prepareCall(iResponseSql)) {
+                    call.registerOutParameter(1, java.sql.Types.CLOB);
+                    call.execute();
+                    response = call.getString(1);
+                }
             } finally {
-            	session.getJdbcConnectionAccess().releaseConnection(connection);
+                session.getJdbcConnectionAccess().releaseConnection(connection);
             }
-            if (response==null || response.length()==0) return null;
-            StringReader reader = new StringReader(response);
-            Document document = (new SAXReader()).read(reader);
-            reader.close();
-            return document;
+
+            if (response == null || response.length() == 0) return null;
+
+            try (StringReader reader = new StringReader(response)) {
+                return new SAXReader().read(reader);
+            }
         } catch (Exception e) {
-            sLog.error("Unable to receive response: "+e.getMessage(),e);
+            sLog.error("Unable to receive response: " + e.getMessage(), e);
             return null;
         } finally {
-        	HibernateUtil.closeCurrentThreadSessions();
+            HibernateUtil.closeCurrentThreadSessions();
         }
     }
 }

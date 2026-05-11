@@ -37,7 +37,7 @@ import com.google.protobuf.CodedOutputStream;
 import com.google.protobuf.TextFormat;
 
 /**
- * @author Tomas Muller
+ * @author Tomas Muller this ExportReport
  */
 public class ExportReport implements OnlineSectioningReport.Report {
 	protected static Log sLog = LogFactory.getLog(ExportReport.class);

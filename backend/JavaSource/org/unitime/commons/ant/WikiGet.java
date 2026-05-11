@@ -38,7 +38,7 @@ import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 
 /**
- * @author Tomas Muller
+ * @author Tomas Muller // this WIKIGET.Java
  */
 public class WikiGet extends Task {
     private URL iWikiUrl = null;
@@ -69,52 +69,64 @@ public class WikiGet extends Task {
             throw new RuntimeException(e.getMessage(), e);
         }
     }
-    
+
     public boolean copy(URL url, File file) {
         try {
-            System.out.print("  Get: "+url+" ");
-            InputStream is = url.openStream();
+            System.out.print("  Get: " + url + " ");
             file.getParentFile().mkdirs();
-            OutputStream os = new FileOutputStream(file);
-            byte[] buffer = new byte[16*1024];
-            int read = 0;
-            long total = 0;
-            while ((read=is.read(buffer))>0) {
-                os.write(buffer,0,read);
-                total += read;
-                System.out.print(".");
+
+            // Try-with-resources handles automatic closing of both streams
+            try (InputStream is = url.openStream();
+                 OutputStream os = new FileOutputStream(file)) {
+
+                byte[] buffer = new byte[16 * 1024];
+                int read = 0;
+                long total = 0;
+                while ((read = is.read(buffer)) > 0) {
+                    os.write(buffer, 0, read);
+                    total += read;
+                    System.out.print(".");
+                }
+                os.flush();
+                // No need for manual is.close() or os.close()
+                System.out.println(" " + total + " bytes read.");
             }
-            os.flush();os.close();is.close();
-            System.out.println(" "+total+" bytes read.");
             return true;
         } catch (IOException ex) {
             System.out.println();
-            System.err.println("Error: Unable to get "+url+": "+ex.getMessage());
+            System.err.println("Error: Unable to get " + url + ": " + ex.getMessage());
         }
         return false;
     }
-    
+
     public boolean copyAndParse(URL url, File file, Parser parser) {
         try {
-            System.out.println("  Get: "+url);
-            BufferedReader is = new BufferedReader(new InputStreamReader(url.openStream()));
+            System.out.println("  Get: " + url);
             file.getParentFile().mkdirs();
-            if (file.getName().equalsIgnoreCase(".html")) file = new File(file.getParentFile(), "index.html");
-            PrintWriter pw = new PrintWriter(new FileWriter(file));
-            String line = null;
-            while ((line=is.readLine())!=null) {
-                line = parser.parse(line);
-                if (line!=null) pw.println(line);
+            if (file.getName().equalsIgnoreCase(".html")) {
+                file = new File(file.getParentFile(), "index.html");
             }
-            pw.flush();pw.close();is.close();
+
+            // Both the Reader and the Writer are now safely managed
+            try (BufferedReader is = new BufferedReader(new InputStreamReader(url.openStream()));
+                 PrintWriter pw = new PrintWriter(new FileWriter(file))) {
+
+                String line = null;
+                while ((line = is.readLine()) != null) {
+                    line = parser.parse(line);
+                    if (line != null) {
+                        pw.println(line);
+                    }
+                }
+                pw.flush();
+            }
             return true;
         } catch (Exception ex) {
             System.out.println();
-            System.err.println("Error: Unable to get "+url+": "+ex.getMessage());
+            System.err.println("Error: Unable to get " + url + ": " + ex.getMessage());
         }
         return false;
     }
-    
     public void execute() throws BuildException {
         try {
             if (iWikiUrl==null)

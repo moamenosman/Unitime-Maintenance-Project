@@ -118,7 +118,7 @@ import com.google.protobuf.CodedInputStream;
 import com.google.protobuf.InvalidProtocolBufferException;
 
 /**
- * @author Tomas Muller
+ * @author Tomas Muller this is SessionRestore
  */
 public class SessionRestore implements SessionRestoreInterface {
     private static Log sLog = LogFactory.getLog(SessionBackup.class);

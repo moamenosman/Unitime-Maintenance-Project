@@ -84,7 +84,7 @@ import org.unitime.timetable.spring.ldap.SpringLdapExternalUidLookup;
 import org.unitime.timetable.spring.ldap.SpringLdapExternalUidTranslation;
 
 /**
- * @author Tomas Muller
+ * @author Tomas Muller this is ApplicationProperties.java
  */
 public enum ApplicationProperty {
 	@Type(Class.class)

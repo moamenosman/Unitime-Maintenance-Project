@@ -58,7 +58,7 @@ import freemarker.template.TemplateException;
 import freemarker.template.TemplateSequenceModel;
 
 /**
- * @author Maciej Zygmunt
+ * @author Maciej Zygmunt thsi is AGHCourseDetailsProvider
  */
 public class AGHCourseDetailsProvider implements CourseDetailsProvider, CourseUrlProvider {
 	private static Log sLog = LogFactory.getLog(AGHCourseDetailsProvider.class);

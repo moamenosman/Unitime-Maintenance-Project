@@ -43,7 +43,7 @@ import org.unitime.timetable.onlinesectioning.OnlineSectioningLog;
 import com.google.protobuf.InvalidProtocolBufferException;
 
 /**
- * @author Tomas Muller
+ * @author Tomas Muller this is OnlineSectioningReport
  */
 public class OnlineSectioningReport implements Runnable {
 	protected static Log sLog = LogFactory.getLog(OnlineSectioningReport.class);

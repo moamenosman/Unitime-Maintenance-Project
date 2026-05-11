@@ -43,7 +43,7 @@ import org.unitime.timetable.model.SessionConfig;
 import org.unitime.timetable.util.Constants;
 
 
-/**
+/** this ApplicationProperties
  * Sets the system properties for any application.
  * The properties in this file is adapted for each application    
  * @author Heston Fernandes, Tomas Muller

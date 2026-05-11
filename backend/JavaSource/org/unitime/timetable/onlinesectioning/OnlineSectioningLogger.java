@@ -15,8 +15,8 @@
  *
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
-*/
+ *
+ */
 package org.unitime.timetable.onlinesectioning;
 
 import java.io.File;
@@ -53,21 +53,21 @@ public class OnlineSectioningLogger extends Thread {
 	private boolean iEnabled = false;
 	private int iLogLimit = -1;
 	private PrintWriter iOut = null;
-	
+
 	private static OnlineSectioningLogger sInstance = null;
-	
+
 	public static OnlineSectioningLogger getInstance() {
 		if (sInstance == null) startLogger();
 		return sInstance;
 	}
-	
+
 	public static void startLogger() {
 		if (sInstance == null) {
 			sInstance = new OnlineSectioningLogger();
 			sInstance.start();
 		}
 	}
-	
+
 	public static void stopLogger() {
 		if (sInstance != null) {
 			sInstance.iActive = false;
@@ -78,11 +78,11 @@ public class OnlineSectioningLogger extends Thread {
 			sInstance = null;
 		}
 	}
-	
+
 	private OnlineSectioningLogger() {
 		super("OnlineSectioningLogger");
 		setDaemon(true);
-		iEnabled = ApplicationProperty.OnlineSchedulingLoggingEnabled.isTrue(); 
+		iEnabled = ApplicationProperty.OnlineSchedulingLoggingEnabled.isTrue();
 		iLogLimit = ApplicationProperty.OnlineSchedulingLogLimit.intValue();
 		try {
 			if (ApplicationProperty.OnlineSchedulingLogFile.value() != null)
@@ -91,7 +91,7 @@ public class OnlineSectioningLogger extends Thread {
 			sLog.warn("Unable to create sectioning log: " + e.getMessage(), e);
 		}
 	}
-	
+
 	public boolean isEnabled() { return iEnabled; }
 	public void setEnabled(boolean enabled) { iEnabled = enabled; }
 	public boolean isActive() { return iActive; }
@@ -100,7 +100,7 @@ public class OnlineSectioningLogger extends Thread {
 		if (log == null || !isEnabled() || !isActive()) return;
 		for (OnlineSectioningLog.Action action: log.getActionList()) {
 			if (action.hasStartTime() && action.hasStudent() && action.hasOperation() && action.hasSession() && ApplicationProperty.OnlineSchedulingLogOperation.isTrue(action.getOperation())
-				&& ApplicationProperty.OnlineSchedulingLogOperation.isTrue(action.getOperation() + "." + (action.hasResult() ? action.getResult().name() : "NULL"))) {
+					&& ApplicationProperty.OnlineSchedulingLogOperation.isTrue(action.getOperation() + "." + (action.hasResult() ? action.getResult().name() : "NULL"))) {
 				synchronized (iActions) {
 					if (iLogLimit <= 0 || iActions.size() < iLogLimit)
 						iActions.add(action);
@@ -114,7 +114,7 @@ public class OnlineSectioningLogger extends Thread {
 			}
 		}
 	}
-	
+
 	protected static String getRequestMessage(OnlineSectioningLog.Action action) {
 		String request = "";
 		int notAlt = 0, lastFT = -1;
@@ -147,7 +147,7 @@ public class OnlineSectioningLogger extends Thread {
 		}
 		return request;
 	}
-	
+
 	protected static String getSelectedMessage(OnlineSectioningLog.Action action) {
 		String selected = "";
 		for (OnlineSectioningLog.Request r: action.getRequestList()) {
@@ -159,19 +159,14 @@ public class OnlineSectioningLogger extends Thread {
 						if (!loc.isEmpty()) loc += ", ";
 						loc += e.getName();
 					}
-					String instr = "";
-					for (OnlineSectioningLog.Entity e: s.getInstructorList()) {
-						if (!instr.isEmpty()) instr += ", ";
-						instr += e.getName();
-					}
 					selected += s.getCourse().getName() + " " + s.getSubpart().getName() + " " + s.getClazz().getName() + " " +
-						(s.hasTime() ? DayCode.toString(s.getTime().getDays()) + " " + time(s.getTime().getStart()) + " - " + time(s.getTime().getStart() + s.getTime().getLength()) : "") + " " + loc;
+							(s.hasTime() ? DayCode.toString(s.getTime().getDays()) + " " + time(s.getTime().getStart()) + " - " + time(s.getTime().getStart() + s.getTime().getLength()) : "") + " " + loc;
 				}
 			}
 		}
 		return selected;
 	}
-	
+
 	protected static String getEnrollmentMessage(OnlineSectioningLog.Action action) {
 		OnlineSectioningLog.Enrollment enrl = null;
 		for (OnlineSectioningLog.Enrollment e: action.getEnrollmentList()) {
@@ -190,23 +185,18 @@ public class OnlineSectioningLogger extends Thread {
 					if (!loc.isEmpty()) loc += ", ";
 					loc += r.getName();
 				}
-				String instr = "";
-				for (OnlineSectioningLog.Entity r: s.getInstructorList()) {
-					if (!instr.isEmpty()) instr += ", ";
-					instr += r.getName();
-				}
 				enrollment += s.getCourse().getName() + " " + s.getSubpart().getName() + " " + s.getClazz().getName() + " " +
-					(s.hasTime() ? DayCode.toString(s.getTime().getDays()) + " " + time(s.getTime().getStart()) : "") + " " + loc;
+						(s.hasTime() ? DayCode.toString(s.getTime().getDays()) + " " + time(s.getTime().getStart()) : "") + " " + loc;
 			}
 		return enrollment;
 	}
-	
+
 	public static String getMessage(OnlineSectioningLog.Action action) {
 		String message = "";
 		int level = 1;
 		for (OnlineSectioningLog.Message m: action.getMessageList()) {
-			if (!m.hasLevel()) continue; // skip messages with no level
-			if (!message.isEmpty() && level > m.getLevel().getNumber()) continue; // if we have a message, ignore messages with lower level
+			if (!m.hasLevel()) continue;
+			if (!message.isEmpty() && level > m.getLevel().getNumber()) continue;
 			if (m.hasText()) {
 				message = (level != m.getLevel().getNumber() || message.isEmpty() ? "" : message + "\n") + m.getText();
 				level = m.getLevel().getNumber();
@@ -234,16 +224,16 @@ public class OnlineSectioningLogger extends Thread {
 			return (request.isEmpty() ? message : request);
 		}
 	}
-	
+
 	protected static String time(int slot) {
-        int h = slot / 12;
-        int m = 5 * (slot % 12);
-        if (CONST.useAmPm())
-        	return (h > 12 ? h - 12 : h) + ":" + (m < 10 ? "0" : "") + m + (h == 24 ? "a" : h >= 12 ? "p" : "a");
-        else
+		int h = slot / 12;
+		int m = 5 * (slot % 12);
+		if (CONST.useAmPm())
+			return (h > 12 ? h - 12 : h) + ":" + (m < 10 ? "0" : "") + m + (h == 24 ? "a" : h >= 12 ? "p" : "a");
+		else
 			return h + ":" + (m < 10 ? "0" : "") + m;
 	}
-	
+
 	public void run() {
 		sLog.info("Online Sectioning Logger is up.");
 		try {
@@ -265,9 +255,10 @@ public class OnlineSectioningLogger extends Thread {
 						sLog.debug("Persisting " + actionsToSave.size() + " actions...");
 						if (iLogLimit > 0 && actionsToSave.size() >= iLogLimit)
 							sLog.warn("The limit of " + iLogLimit + " unpersisted log messages was reached, some messages have been dropped.");
-						org.hibernate.Session hibSession = OnlineSectioningLogDAO.getInstance().createNewSession();
-						hibSession.setCacheMode(CacheMode.IGNORE);
-						try {
+
+						// FIX: Use try-with-resources for the Hibernate session to prevent leaks
+						try (org.hibernate.Session hibSession = OnlineSectioningLogDAO.getInstance().createNewSession()) {
+							hibSession.setCacheMode(CacheMode.IGNORE);
 							Hashtable<Long, Session> sessions = new Hashtable<Long, Session>();
 							for (OnlineSectioningLog.Action q: actionsToSave) {
 								org.unitime.timetable.model.OnlineSectioningLog log = new org.unitime.timetable.model.OnlineSectioningLog();
@@ -321,8 +312,6 @@ public class OnlineSectioningLogger extends Thread {
 								hibSession.persist(log);
 							}
 							hibSession.flush();
-						} finally {
-							hibSession.close();
 						}
 					}
 				} catch (Throwable t) {
@@ -334,8 +323,12 @@ public class OnlineSectioningLogger extends Thread {
 			sLog.error("Online Sectioning Logger failed: " + t.getMessage(), t);
 		} finally {
 			iActive = false;
-			if (iOut != null) { iOut.flush(); iOut.close(); }
+			if (iOut != null) {
+				iOut.flush();
+				iOut.close();
+				iOut = null; // Safety cleanup
+			}
 		}
-		sLog.info("Online Sectioning Logger is down.");	}
-
+		sLog.info("Online Sectioning Logger is down.");
+	}
 }

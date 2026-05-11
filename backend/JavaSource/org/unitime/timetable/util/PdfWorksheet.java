@@ -15,8 +15,8 @@
  *
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
-*/
+ *
+ */
 package org.unitime.timetable.util;
 
 import java.io.FileOutputStream;
@@ -80,13 +80,13 @@ import com.lowagie.text.Paragraph;
 
 
 /**
- * @author Tomas Muller
+ * @author Tomas Muller this is PdfWorksheet
  */
 public class PdfWorksheet {
-	protected static GwtConstants CONSTANTS = Localization.create(GwtConstants.class);
-	protected static CourseMessages MSG = Localization.create(CourseMessages.class);
+    protected static GwtConstants CONSTANTS = Localization.create(GwtConstants.class);
+    protected static CourseMessages MSG = Localization.create(CourseMessages.class);
 
-	private boolean iUseCommitedAssignments = true;
+    private boolean iUseCommitedAssignments = true;
     private static int sNrChars = 133;
     private static int sNrLines = 50;
     private OutputStream iOut = null;
@@ -98,15 +98,15 @@ public class PdfWorksheet {
     private StringBuffer iBuffer = new StringBuffer();
     private CourseOffering iCourseOffering = null;
     private SubjectArea iCurrentSubjectArea = null;
-    
+
     private PdfWorksheet(OutputStream out, Collection<SubjectArea> subjectAreas, String courseNumber) throws IOException, DocumentException  {
         iUseCommitedAssignments = ApplicationProperty.WorksheetPdfUseCommittedAssignments.isTrue();
         iSubjectAreas = new TreeSet<SubjectArea>(new Comparator<SubjectArea>() {
-    		@Override
-    		public int compare(SubjectArea s1, SubjectArea s2) {
-    			return s1.getSubjectAreaAbbreviation().compareTo(s2.getSubjectAreaAbbreviation());
-    		}
-    	});
+            @Override
+            public int compare(SubjectArea s1, SubjectArea s2) {
+                return s1.getSubjectAreaAbbreviation().compareTo(s2.getSubjectAreaAbbreviation());
+            }
+        });
         iSubjectAreas.addAll(subjectAreas);
         iCourseNumber = courseNumber;
         if (iCourseNumber!=null && (iCourseNumber.trim().length()==0 || "*".equals(iCourseNumber.trim().length())))
@@ -119,22 +119,22 @@ public class PdfWorksheet {
         String session = null;
         String subjects = "";
         for (SubjectArea sa: iSubjectAreas) {
-        	if (subjects.isEmpty()) subjects += ", ";
-        	subjects += sa.getSubjectAreaAbbreviation();
-        	if (session == null) session += sa.getSession().getLabel();
+            if (subjects.isEmpty()) subjects += ", ";
+            subjects += sa.getSubjectAreaAbbreviation();
+            if (session == null) session += sa.getSession().getLabel();
         }
         iDoc.addTitle(subjects + (iCourseNumber==null?"":" "+iCourseNumber) + " Worksheet");
         iDoc.addAuthor(ApplicationProperty.WorksheetPdfAuthor.value().replace("%", Constants.getVersion()));
         iDoc.addSubject(subjects + (session == null ? "" : " -- " + session));
         iDoc.addCreator("UniTime "+Constants.getVersion()+", www.unitime.org");
         if (!iSubjectAreas.isEmpty())
-        	iCurrentSubjectArea = iSubjectAreas.first();
+            iCurrentSubjectArea = iSubjectAreas.first();
 
         iDoc.open();
-        
+
         printHeader();
     }
-    
+
     public static boolean print(OutputStream out, Collection<SubjectArea> subjectAreas) throws IOException, DocumentException {
         TreeSet courses = new TreeSet(new Comparator() {
             public int compare(Object o1, Object o2) {
@@ -147,9 +147,9 @@ public class PdfWorksheet {
         });
         String subjectIds = "";
         for (SubjectArea sa: subjectAreas)
-        	subjectIds += (subjectIds.isEmpty() ? "" : ",") + sa.getUniqueId();
+            subjectIds += (subjectIds.isEmpty() ? "" : ",") + sa.getUniqueId();
         courses.addAll(SessionDAO.getInstance().getSession().createQuery(
-        		"select co from CourseOffering co where  co.subjectArea.uniqueId in (" + subjectIds + ")", CourseOffering.class).list());
+                "select co from CourseOffering co where  co.subjectArea.uniqueId in (" + subjectIds + ")", CourseOffering.class).list());
         if (courses.isEmpty()) return false;
         PdfWorksheet w = new PdfWorksheet(out, subjectAreas, null);
         for (Iterator i=courses.iterator();i.hasNext();) {
@@ -159,7 +159,7 @@ public class PdfWorksheet {
         w.close();
         return true;
     }
-    
+
     public static boolean print(OutputStream out, Collection<SubjectArea> subjectAreas, String courseNumber, String filterWaitList) throws IOException, DocumentException {
         TreeSet courses = new TreeSet(new Comparator() {
             public int compare(Object o1, Object o2) {
@@ -172,52 +172,52 @@ public class PdfWorksheet {
         });
         List<Long> subjectIds = new ArrayList<Long>();
         for (SubjectArea sa: subjectAreas)
-        	subjectIds.add(sa.getUniqueId());
+            subjectIds.add(sa.getUniqueId());
         String query = "select co from CourseOffering co where  co.subjectArea.uniqueId in :subjectIds";
         if (ApplicationProperty.CourseOfferingTitleSearch.isTrue() && courseNumber != null && courseNumber.length() > 2) {
-			if (courseNumber.indexOf('*') >= 0) {
-				query += " and (co.courseNbr like :courseNbr or lower(co.title) like lower(:courseNbr))";
-			} else {
-				query += " and (co.courseNbr = :courseNbr or lower(co.title) like ('%' || lower(:courseNbr) || '%'))";
-			}
-		} else if (courseNumber != null && !courseNumber.trim().isEmpty()) {
-			if (courseNumber.indexOf('*') >= 0) {
-				query += " and co.courseNbr like :courseNbr ";
-			} else {
-				query += " and co.courseNbr = :courseNbr ";
-			}
+            if (courseNumber.indexOf('*') >= 0) {
+                query += " and (co.courseNbr like :courseNbr or lower(co.title) like lower(:courseNbr))";
+            } else {
+                query += " and (co.courseNbr = :courseNbr or lower(co.title) like ('%' || lower(:courseNbr) || '%'))";
+            }
+        } else if (courseNumber != null && !courseNumber.trim().isEmpty()) {
+            if (courseNumber.indexOf('*') >= 0) {
+                query += " and co.courseNbr like :courseNbr ";
+            } else {
+                query += " and co.courseNbr = :courseNbr ";
+            }
         }
         if ("W".equals(filterWaitList)) {
-			if (InstructionalOffering.getDefaultWaitListMode() == OfferingWaitListMode.WaitList)
-				query += " and (co.instructionalOffering.waitlistMode is null or co.instructionalOffering.waitlistMode = 1) and co.instructionalOffering.notOffered = false ";
-			else
-				query += " and co.instructionalOffering.waitlistMode = 1 and co.instructionalOffering.notOffered = false ";
-		} else if ("N".equals(filterWaitList)) {
-			if (InstructionalOffering.getDefaultWaitListMode() != OfferingWaitListMode.WaitList)
-				query += " and (co.instructionalOffering.waitlistMode is null or co.instructionalOffering.waitlistMode != 1) and co.instructionalOffering.notOffered = false ";
-			else
-				query += " and co.instructionalOffering.waitlistMode != 1 and co.instructionalOffering.notOffered = false ";
-		} else if ("R".equals(filterWaitList)) {
-			if (InstructionalOffering.getDefaultWaitListMode() != OfferingWaitListMode.Disabled)
-				query += " and (co.instructionalOffering.waitlistMode is null or co.instructionalOffering.waitlistMode > 0) and co.instructionalOffering.notOffered = false ";
-			else
-				query += " and co.instructionalOffering.waitlistMode > 0 and co.instructionalOffering.notOffered = false ";
-		} else if ("X".equals(filterWaitList)) {
-			if (InstructionalOffering.getDefaultWaitListMode() == OfferingWaitListMode.Disabled)
-				query += " and (co.instructionalOffering.waitlistMode is null or co.instructionalOffering.waitlistMode = 0) and co.instructionalOffering.notOffered = false ";
-			else
-				query += " and co.instructionalOffering.waitlistMode = 0 and co.instructionalOffering.notOffered = false ";
-		} else if ("Z".equals(filterWaitList)) {
-			if (InstructionalOffering.getDefaultWaitListMode() == OfferingWaitListMode.ReSchedule)
-				query += " and (co.instructionalOffering.waitlistMode is null or co.instructionalOffering.waitlistMode = 2) and co.instructionalOffering.notOffered = false ";
-			else
-				query += " and co.instructionalOffering.waitlistMode = 2 and co.instructionalOffering.notOffered = false ";
-		}
-        
+            if (InstructionalOffering.getDefaultWaitListMode() == OfferingWaitListMode.WaitList)
+                query += " and (co.instructionalOffering.waitlistMode is null or co.instructionalOffering.waitlistMode = 1) and co.instructionalOffering.notOffered = false ";
+            else
+                query += " and co.instructionalOffering.waitlistMode = 1 and co.instructionalOffering.notOffered = false ";
+        } else if ("N".equals(filterWaitList)) {
+            if (InstructionalOffering.getDefaultWaitListMode() != OfferingWaitListMode.WaitList)
+                query += " and (co.instructionalOffering.waitlistMode is null or co.instructionalOffering.waitlistMode != 1) and co.instructionalOffering.notOffered = false ";
+            else
+                query += " and co.instructionalOffering.waitlistMode != 1 and co.instructionalOffering.notOffered = false ";
+        } else if ("R".equals(filterWaitList)) {
+            if (InstructionalOffering.getDefaultWaitListMode() != OfferingWaitListMode.Disabled)
+                query += " and (co.instructionalOffering.waitlistMode is null or co.instructionalOffering.waitlistMode > 0) and co.instructionalOffering.notOffered = false ";
+            else
+                query += " and co.instructionalOffering.waitlistMode > 0 and co.instructionalOffering.notOffered = false ";
+        } else if ("X".equals(filterWaitList)) {
+            if (InstructionalOffering.getDefaultWaitListMode() == OfferingWaitListMode.Disabled)
+                query += " and (co.instructionalOffering.waitlistMode is null or co.instructionalOffering.waitlistMode = 0) and co.instructionalOffering.notOffered = false ";
+            else
+                query += " and co.instructionalOffering.waitlistMode = 0 and co.instructionalOffering.notOffered = false ";
+        } else if ("Z".equals(filterWaitList)) {
+            if (InstructionalOffering.getDefaultWaitListMode() == OfferingWaitListMode.ReSchedule)
+                query += " and (co.instructionalOffering.waitlistMode is null or co.instructionalOffering.waitlistMode = 2) and co.instructionalOffering.notOffered = false ";
+            else
+                query += " and co.instructionalOffering.waitlistMode = 2 and co.instructionalOffering.notOffered = false ";
+        }
+
         Query<CourseOffering> q = SessionDAO.getInstance().getSession().createQuery(query, CourseOffering.class);
         q.setParameterList("subjectIds", subjectIds);
         if (courseNumber != null && !courseNumber.trim().isEmpty())
-        	q.setParameter("courseNbr", ApplicationProperty.CourseOfferingNumberUpperCase.isTrue()? courseNumber.trim().replace('*', '%').toUpperCase() : courseNumber.trim().replace('*', '%'));
+            q.setParameter("courseNbr", ApplicationProperty.CourseOfferingNumberUpperCase.isTrue()? courseNumber.trim().replace('*', '%').toUpperCase() : courseNumber.trim().replace('*', '%'));
         courses.addAll(q.list());
         if (courses.isEmpty()) return false;
         PdfWorksheet w = new PdfWorksheet(out, subjectAreas, courseNumber);
@@ -228,7 +228,7 @@ public class PdfWorksheet {
         w.close();
         return true;
     }
-    
+
     private String[] time(Class_ clazz) {
         String dpat = "";
         DatePattern dp = clazz.effectiveDatePattern();
@@ -244,8 +244,8 @@ public class PdfWorksheet {
         if (assgn==null) {
             Set timePrefs = clazz.getEffectiveTimePreferences();
             if (timePrefs.isEmpty()) {
-            	DurationModel dm = clazz.getSchedulingSubpart().getInstrOfferingConfig().getDurationModel();
-            	Integer ah = dm.getArrangedHours(clazz.getSchedulingSubpart().getMinutesPerWk(), clazz.effectiveDatePattern());
+                DurationModel dm = clazz.getSchedulingSubpart().getInstrOfferingConfig().getDurationModel();
+                Integer ah = dm.getArrangedHours(clazz.getSchedulingSubpart().getMinutesPerWk(), clazz.effectiveDatePattern());
                 if (ah != null)
                     return new String[]{MSG.arrHrsN(ah)+dpat};
                 else
@@ -259,10 +259,10 @@ public class PdfWorksheet {
                 if (model.isExactTime()) {
                     if (req!=null) onlyOneReq=false;
                     else {
-            			DurationModel dm = clazz.getSchedulingSubpart().getInstrOfferingConfig().getDurationModel();
-            			int minsPerMeeting = dm.getExactTimeMinutesPerMeeting(clazz.getSchedulingSubpart().getMinutesPerWk(), clazz.effectiveDatePattern(), model.getExactDays());
+                        DurationModel dm = clazz.getSchedulingSubpart().getInstrOfferingConfig().getDurationModel();
+                        int minsPerMeeting = dm.getExactTimeMinutesPerMeeting(clazz.getSchedulingSubpart().getMinutesPerWk(), clazz.effectiveDatePattern(), model.getExactDays());
                         int length = ExactTimeMins.getNrSlotsPerMtg(minsPerMeeting);
-                        int breakTime = ExactTimeMins.getBreakTime(minsPerMeeting); 
+                        int breakTime = ExactTimeMins.getBreakTime(minsPerMeeting);
                         req = new TimeLocation(model.getExactDays(), model.getExactStartSlot(), length,PreferenceLevel.sIntLevelNeutral,0,dp.getUniqueId(),dp.getName(),dp.getPatternBitSet(),breakTime);
                     }
                 } else {
@@ -280,7 +280,7 @@ public class PdfWorksheet {
                                             dp.getUniqueId(),
                                             dp.getName(),
                                             dp.getPatternBitSet(),
-                                            model.getBreakTime());                                                
+                                            model.getBreakTime());
                                 }
                             }
                         }
@@ -303,7 +303,7 @@ public class PdfWorksheet {
         TimeLocation t = assgn.getTimeLocation();
         return new String[] {t.getDayHeader()+" "+t.getStartTimeHeader(CONSTANTS.useAmPm())+" - "+t.getEndTimeHeader(CONSTANTS.useAmPm())+dpat};
     }
-    
+
     private String[] room(Class_ clazz) {
         Assignment assgn = (iUseCommitedAssignments?clazz.getCommittedAssignment():null);
         if (assgn==null || assgn.getRoomLocations().isEmpty()) {
@@ -311,7 +311,7 @@ public class PdfWorksheet {
             if (roomLocations.size()==clazz.getNbrRooms().intValue()) {
                 String[] rooms = new String[roomLocations.size()];
                 for (int x=0;x<roomLocations.size();x++) {
-                    RoomLocation r = (RoomLocation)roomLocations.get(x); 
+                    RoomLocation r = (RoomLocation)roomLocations.get(x);
                     rooms[x] = r.getName();
                 }
                 return rooms;
@@ -353,36 +353,36 @@ public class PdfWorksheet {
         }
         String[] rooms = new String[assgn.getRoomLocations().size()];
         for (int x=0;x<assgn.getRoomLocations().size();x++) {
-            RoomLocation r = (RoomLocation)assgn.getRoomLocations().elementAt(x); 
+            RoomLocation r = (RoomLocation)assgn.getRoomLocations().elementAt(x);
             rooms[x] = r.getName();
         }
         return rooms;
     }
-    
+
     private String[] instructor(Class_ clazz) {
         List<DepartmentalInstructor> leads = clazz.getLeadInstructors();
         String[] instr = new String[leads.size()];
         for (int x=0;x<clazz.getLeadInstructors().size();x++) {
-            DepartmentalInstructor in = (DepartmentalInstructor)leads.get(x); 
+            DepartmentalInstructor in = (DepartmentalInstructor)leads.get(x);
             instr[x] = in.nameShort();
         }
         return instr;
     }
-    
+
     protected void print(CourseOffering co) throws DocumentException {
-    	if (!iCurrentSubjectArea.equals(co.getSubjectArea())) {
-    		lastPage();
-    		iCurrentSubjectArea = co.getSubjectArea();
-    		iDoc.newPage();
-    		printHeader();
-    	} else {
-    		if (iLineNo+5>=sNrLines) newPage();
-    	}
+        if (!iCurrentSubjectArea.equals(co.getSubjectArea())) {
+            lastPage();
+            iCurrentSubjectArea = co.getSubjectArea();
+            iDoc.newPage();
+            printHeader();
+        } else {
+            if (iLineNo+5>=sNrLines) newPage();
+        }
         iCourseOffering = co;
         int courseLimit = -1;
         InstructionalOffering offering = co.getInstructionalOffering();
         if (co.getReservation() != null)
-        	courseLimit = co.getReservation();
+            courseLimit = co.getReservation();
         if (courseLimit<0) {
             if (offering.getCourseOfferings().size()==1 && offering.getLimit()!=null)
                 courseLimit = offering.getLimit().intValue();
@@ -417,8 +417,8 @@ public class PdfWorksheet {
         }
         int enrl = -1;
         String s1 = co.getSubjectArea().getSession().getAcademicTerm().substring(0,1) + co.getSubjectArea().getSession().getAcademicYear().substring(2);
-        String s2 = co.getSubjectArea().getSession().getAcademicTerm().substring(0,1) + 
-            new DecimalFormat("00").format(Integer.parseInt(co.getSubjectArea().getSession().getAcademicYear().substring(2))-1);
+        String s2 = co.getSubjectArea().getSession().getAcademicTerm().substring(0,1) +
+                new DecimalFormat("00").format(Integer.parseInt(co.getSubjectArea().getSession().getAcademicYear().substring(2))-1);
         if (co.getProjectedDemand()!=null) enrl = co.getProjectedDemand().intValue();
         int lastLikeEnrl = co.getCourseOfferingDemands().size();
         String title = co.getTitle();
@@ -435,7 +435,7 @@ public class PdfWorksheet {
                 lpad(lastLikeEnrl<=0?"":String.valueOf(lastLikeEnrl),5)+" "+
                 rpad(co.getConsentType()==null?"":co.getConsentType().getAbbv(),10)+" "+
                 rpad(offering.getCourseOfferings().size()>1?offering.getCourseName():"",10)
-                );
+        );
         while (title.length()>37) {
             title = title.substring(37);
             println("           "+rpad(title,37)+(title.length()>37?"-":" "));
@@ -511,23 +511,23 @@ public class PdfWorksheet {
                     for (int x=0;x<Math.max(Math.max(1,time.length),Math.max(instr.length,rooms.length));x++) {
                         cTable.add(
                                 rpad(same?"":x==0?subpartLabel:"",5)+" "+
-                                lpad(x==0?clazz.getSectionNumberString():"",6)+" "+
-                                rpad(time!=null && x<time.length?time[x]:"",40)+" "+
-                                lpad(x==0 && clazz.getClassLimit()>0 && clazz.getNbrRooms().intValue()>0?(clazz.getNbrRooms().intValue()>1?clazz.getNbrRooms()+"x":"")+String.valueOf(clazz.getClassLimit()):"",5)+" "+
-                                rpad(rooms!=null && x<rooms.length?rooms[x]:"",18)+" "+
-                                rpad(instr!=null && x<instr.length?instr[x]:"",21)+" "+
-                                rpad(x==0?clazz.getManagingDept().getShortLabel():"",6)
-                                );
+                                        lpad(x==0?clazz.getSectionNumberString():"",6)+" "+
+                                        rpad(time!=null && x<time.length?time[x]:"",40)+" "+
+                                        lpad(x==0 && clazz.getClassLimit()>0 && clazz.getNbrRooms().intValue()>0?(clazz.getNbrRooms().intValue()>1?clazz.getNbrRooms()+"x":"")+String.valueOf(clazz.getClassLimit()):"",5)+" "+
+                                        rpad(rooms!=null && x<rooms.length?rooms[x]:"",18)+" "+
+                                        rpad(instr!=null && x<instr.length?instr[x]:"",21)+" "+
+                                        rpad(x==0?clazz.getManagingDept().getShortLabel():"",6)
+                        );
                     }
                     same=true;
                     if (clazz.getParentClass()!=null && clazz.getChildClasses().isEmpty()) {
                         String gr = clazz.getSchedulingSubpart().getItype().getAbbv().trim()+
-                                    lpad(clazz.getSectionNumberString(),4);
+                                lpad(clazz.getSectionNumberString(),4);
                         Class_ parent = clazz.getParentClass();
                         while (parent!=null) {
                             gr = parent.getSchedulingSubpart().getItype().getAbbv().trim()+
-                                lpad(parent.getSectionNumberString(),4)+
-                                ", "+gr;
+                                    lpad(parent.getSectionNumberString(),4)+
+                                    ", "+gr;
                             parent = parent.getParentClass();
                         }
                         gTable.add(gr);
@@ -555,27 +555,27 @@ public class PdfWorksheet {
         println(rep('=',sNrChars));
         iCourseOffering = null;
     }
-    
+
     private void out(String text) throws DocumentException {
         if (iBuffer.length()>0) iBuffer.append("\n");
         iBuffer.append(text);
     }
-    
+
     private static String rep(char ch, int cnt) {
         String ret = "";
         for (int i=0;i<cnt;i++) ret+=ch;
         return ret;
     }
-    
+
     private void outln(char ch) throws DocumentException {
         out(rep(ch,sNrChars));
     }
-    
+
     private String lpad(String s, char ch, int len) {
         while (s.length()<len) s = ch + s;
         return s;
     }
-    
+
     private String lpad(String s, int len) {
         if (s==null) s="";
         if (s.length()>len) return s.substring(0,len);
@@ -586,7 +586,7 @@ public class PdfWorksheet {
         while (s.length()<len) s = s + ch;
         return s;
     }
-    
+
     private String rpad(String s, int len) {
         if (s==null) s="";
         if (s.length()>len) return s.substring(0,len);
@@ -598,7 +598,7 @@ public class PdfWorksheet {
         while ((s1+m+s2).length()<len) m += ch;
         return s1+m+s2;
     }
-    
+
     private String render(String line, String s, int idx) {
         String a = (line.length()<=idx?rpad(line,' ',idx):line.substring(0,idx));
         String b = (line.length()<=idx+s.length()?"":line.substring(idx+s.length()));
@@ -612,27 +612,27 @@ public class PdfWorksheet {
     private String renderEnd(String line, String s) {
         return render(line, s, sNrChars-s.length());
     }
-    
+
     protected void printHeader() throws DocumentException {
         out(renderMiddle(
                 ApplicationProperty.WorksheetPdfAuthor.value().replace("%", Constants.getVersion()),
                 ApplicationProperty.WorksheetPdfTitle.value()
-                ));
+        ));
         out(mpad(
                 new SimpleDateFormat("EEE MMM dd, yyyy").format(new Date()),
                 iCurrentSubjectArea.getSession().getAcademicInitiative()+" "+
-                iCurrentSubjectArea.getSession().getAcademicTerm()+" "+
-                iCurrentSubjectArea.getSession().getAcademicYear(),' ',sNrChars));
+                        iCurrentSubjectArea.getSession().getAcademicTerm()+" "+
+                        iCurrentSubjectArea.getSession().getAcademicYear(),' ',sNrChars));
         outln('=');
         iLineNo=0;
         if (iCourseOffering!=null)
             println("("+iCourseOffering.getCourseName()+" Continued)");
     }
-    
+
     protected void printFooter() throws DocumentException {
         out("");
         out(renderEnd(renderMiddle("","Page "+(iPageNo+1)),"<"+iCurrentSubjectArea.getSubjectAreaAbbreviation()+(iCourseNumber!=null?" "+iCourseNumber:"")+">  "));
-    	//FIXME: For some reason when a line starts with space, the line is shifted by one space in the resulting PDF (when using iText 5.0.2)
+        //FIXME: For some reason when a line starts with space, the line is shifted by one space in the resulting PDF (when using iText 5.0.2)
         Paragraph p = new Paragraph(iBuffer.toString().replace("\n ", "\n  "), PdfFont.getFixedFont());
         p.setLeading(9.5f); //was 13.5f
         iDoc.add(p);
@@ -645,7 +645,7 @@ public class PdfWorksheet {
         }
         printFooter();
     }
-    
+
     protected void newPage() throws DocumentException {
         while (iLineNo<sNrLines) {
             out(""); iLineNo++;
@@ -654,21 +654,21 @@ public class PdfWorksheet {
         iDoc.newPage();
         printHeader();
     }
-    
+
     protected void println(String text) throws DocumentException {
         out(text);
         iLineNo++;
         if (iLineNo>=sNrLines) newPage();
     }
-    
+
     private void close() throws IOException {
         iDoc.close();
     }
 
-	public static void main(String[] args) {
+    public static void main(String[] args) {
         try {
             HibernateUtil.configureHibernate(ApplicationProperties.getProperties());
-            
+
             Long sessionId = Long.valueOf(ApplicationProperties.getProperty("tmtbl.pdf.worksheet.session", "165924"));
             Session session = SessionDAO.getInstance().get(sessionId);
             if (session==null) {
@@ -690,7 +690,7 @@ public class PdfWorksheet {
             } else {
                 subjectAreas = new TreeSet(SubjectArea.getSubjectAreaList(sessionId));
             }
-            
+
             for (Iterator i=subjectAreas.iterator();i.hasNext();) {
                 SubjectArea sa = (SubjectArea)i.next();
                 System.out.println("Printing subject area "+sa.getSubjectAreaAbbreviation()+" ...");
@@ -699,7 +699,7 @@ public class PdfWorksheet {
                 PdfWorksheet.print(out, sas);
                 out.flush(); out.close();
             }
-            
+
             HibernateUtil.closeHibernate();
         } catch (Exception e) {
             e.printStackTrace();

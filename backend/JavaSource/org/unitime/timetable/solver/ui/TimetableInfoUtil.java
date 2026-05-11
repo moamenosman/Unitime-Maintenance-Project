@@ -15,14 +15,13 @@
  *
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
-*/
+ *
+ */
 package org.unitime.timetable.solver.ui;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -46,77 +45,90 @@ import org.unitime.timetable.solver.jgroups.SolverServerImplementation;
 public class TimetableInfoUtil implements TimetableInfoFileProxy {
 	private static Log sLog = LogFactory.getLog(TimetableInfoUtil.class);
 	private static TimetableInfoUtil sInstance = new TimetableInfoUtil();
+
 	private TimetableInfoUtil() {}
-	
+
 	public static TimetableInfoUtil getLocalInstance() { return sInstance; }
-	
+
 	public static TimetableInfoFileProxy getInstance() {
 		// Create the cluster instance
 		SolverServer server = SolverServerImplementation.getInstance();
 		if (server != null && server.getCourseSolverContainer() != null)
 			return ((CourseSolverContainer)server.getCourseSolverContainer()).getFileProxy();
-		
+
 		// Fall back to local instance
 		return getLocalInstance();
 	}
-	
+
+	@Override
 	public boolean saveToFile(String name, TimetableInfo info) {
-		FileOutputStream out = null;
 		try {
-			File file = new File(ApplicationProperties.getBlobFolder(),name);
+			File file = new File(ApplicationProperties.getBlobFolder(), name);
 			file.getParentFile().mkdirs();
-			out = new FileOutputStream(file); 
-			XMLWriter writer = new XMLWriter(new GZIPOutputStream(out),OutputFormat.createCompactFormat());
-			Document document = DocumentHelper.createDocument();
-			Element root = document.addElement(info.getClass().getName());
-			info.save(root);
-			writer.write(document);
-			writer.flush(); writer.close();
-			out.flush();out.close();out=null;
+
+			// Only the Streams go in the try-with-resources because they implement Closeable
+			try (FileOutputStream out = new FileOutputStream(file);
+				 GZIPOutputStream gzipOut = new GZIPOutputStream(out)) {
+
+				// Initialize the writer inside the block
+				XMLWriter writer = new XMLWriter(gzipOut, OutputFormat.createCompactFormat());
+
+				Document document = DocumentHelper.createDocument();
+				Element root = document.addElement(info.getClass().getName());
+				info.save(root);
+
+				writer.write(document);
+				writer.flush();
+
+				// We close the writer here. Because gzipOut is in the try-block,
+				// it will still close automatically even if an error happens above.
+				writer.close();
+			}
+
 			sLog.info("Saved info " + name + " as " + file + " (" + file.length() + " bytes)");
 			return true;
 		} catch (Exception e) {
 			sLog.warn("Failed to save info " + name + ": " + e.getMessage(), e);
 			return false;
-		} finally {
-    		try {
-    			if (out!=null) out.close();
-    		} catch (IOException e) {}
 		}
 	}
-	
+	@Override
 	public TimetableInfo loadFromFile(String name) {
 		try {
-			File file = new File(ApplicationProperties.getBlobFolder(),name);
+			File file = new File(ApplicationProperties.getBlobFolder(), name);
 			if (!file.exists()) return null;
+
 			sLog.info("Loading info " + name + " from " + file + " (" + file.length() + " bytes)");
+
 			Document document = null;
-			GZIPInputStream gzipInput = null;
-			try {
-				gzipInput = new GZIPInputStream(new FileInputStream(file));
+			// Try-with-resources ensures streams are closed even if SAXReader fails
+			try (FileInputStream fis = new FileInputStream(file);
+				 GZIPInputStream gzipInput = new GZIPInputStream(fis)) {
 				document = (new SAXReader()).read(gzipInput);
-			} finally {
-				if (gzipInput!=null) gzipInput.close();
 			}
+
+			if (document == null) return null;
+
 			Element root = document.getRootElement();
 			String infoClassName = root.getName();
-			Class infoClass = Class.forName(infoClassName);
-			TimetableInfo info = (TimetableInfo)infoClass.getConstructor(new Class[] {}).newInstance(new Object[] {});
+			Class<?> infoClass = Class.forName(infoClassName);
+			TimetableInfo info = (TimetableInfo) infoClass.getConstructor().newInstance();
 			info.load(root);
+
 			return info;
 		} catch (Exception e) {
 			sLog.warn("Failed to load info " + name + ": " + e.getMessage(), e);
 			return null;
 		}
 	}
-	
+
+	@Override
 	public boolean deleteFile(String name) {
 		try {
-			File file = new File(ApplicationProperties.getBlobFolder(),name);
+			File file = new File(ApplicationProperties.getBlobFolder(), name);
 			if (file.exists()) {
 				sLog.info("Deleting info " + name + " as " + file + " (" + file.length() + " bytes)");
-				file.delete();
-				return true;
+				return file.delete();
 			}
 			return false;
 		} catch (Exception e) {

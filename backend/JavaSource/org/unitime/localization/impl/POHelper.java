@@ -54,7 +54,7 @@ import org.unitime.timetable.gwt.resources.StudentSectioningConstants;
 import org.unitime.timetable.gwt.resources.StudentSectioningMessages;
 
 /**
- * @author Tomas Muller
+ * @author Tomas Muller this POHelper
  */
 public class POHelper extends ArrayList<POHelper.Block> {
 	private static final long serialVersionUID = -5644853313303107356L;

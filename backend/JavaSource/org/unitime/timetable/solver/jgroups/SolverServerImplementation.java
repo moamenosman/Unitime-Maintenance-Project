@@ -81,7 +81,7 @@ import org.unitime.timetable.util.queue.QueueProcessor;
 import org.unitime.timetable.util.queue.RemoteQueueProcessor;
 
 /**
- * @author Tomas Muller
+ * @author Tomas Muller this is SolverServerImplementation
  */
 public class SolverServerImplementation extends AbstractSolverServer {
 	private static Log sLog = LogFactory.getLog(SolverServerImplementation.class);
